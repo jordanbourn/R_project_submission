@@ -1,0 +1,89 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Kaggle Titanic Data:
+
+```{r}
+data <- read.csv('../R/sample_submission.csv')
+data_2 <- read.csv('../R/test.csv')
+data_1 <- read.csv('../R/train.csv')
+
+#%>%
+# group_by(Transported)
+#ggplot(data = data) +
+# geom_smooth(mapping = aes(x = Transported, y = PassengerId))
+# View(data)
+View(data_1)
+View(data_2)
+```
+
+VIP passengers vs. non-VIP passengers:
+
+```{r}
+vip_pie = ggplot(data = data_1) +
+  geom_bar(mapping = aes(x = VIP, fill = VIP),
+           position = 'fill'
+  ) +
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+vip_pie + coord_polar()
+```
+
+Destination vs. HomePlanet
+
+```{r}
+dest_data <- select(data_1,
+                    PassengerId,
+                    HomePlanet,
+                    Destination
+                    )
+# view(dest_data)
+
+ggplot(data = dest_data) +
+  geom_bar(mapping = aes(x = Destination, fill = HomePlanet))
+
+ggplot(data = dest_data) +
+  geom_bar(mapping = aes(x = HomePlanet, fill = Destination))
+```
+
+Null Values
+
+```{r}
+null_transp <- select(data_1,
+                      PassengerId,
+                      Transported,
+                      RoomService:VRDeck,
+                      Name
+                      )
+# view(arrange(null_transp, Transported))
+
+bool_transp <- reframe(null_transp,
+             PassengerId,
+             Transported = FALSE,
+             no_purchases = RoomService != 0 |
+               FoodCourt != 0 |
+               ShoppingMall != 0 |
+               Spa != 0 |
+               VRDeck != 0
+          )
+
+ggplot(data = bool_transp) +
+  geom_bar(mapping = aes(x = no_purchases, fill = no_purchases))
+```
+
+VIP by Age
+
+```{r}
+dat_age <- select(data_1,
+                  PassengerId,
+                  Age,
+                  VIP
+                  )
+age_group <- group_by(dat_age, Age)
+
+ggplot(data = age_group) +
+  geom_boxplot(mapping = aes(x = Age,y = VIP, color = VIP))
+```
